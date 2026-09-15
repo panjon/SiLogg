@@ -4,7 +4,7 @@
 <header class="page-heading"><div><p class="eyebrow">Misslyckade skrivningar till SI-pinne</p><h1>Felrapport</h1></div><a class="button button-secondary" asp-page="/Index">Sök stämplingar</a></header>
 <form method="get" class="filters">
     <div class="field"><label asp-for="ErrorCode">Felkod</label><select asp-for="ErrorCode"><option value="">Alla</option>@foreach(var code in Model.ErrorCodes){<option value="@code">@code</option>}</select></div>
-    <div class="field"><label asp-for="Date">Datum</label><input asp-for="Date" type="date" /></div>
+    <div class="field"><label asp-for="Date">Datum</label><input asp-for="Date" type="date" lang="sv-SE" /></div>
     <div class="field"><label asp-for="CodeNumber">Kontrollkod</label><input asp-for="CodeNumber" inputmode="numeric" /></div>
     <div class="field"><label asp-for="Siid">SIID</label><input asp-for="Siid" inputmode="numeric" /></div>
     <button class="button button-primary" type="submit">Filtrera</button>
@@ -23,7 +23,7 @@ else{
             <tr>
                 <td data-sort-value="@error.ErrorCode"><span class="error-code">@error.ErrorCode</span><div>@error.Description</div></td>
                 <td class="mono" data-sort-value="@error.Siid">@error.Siid</td>
-                <td data-sort-value="@error.CodeNumber"><strong>@error.CodeNumber</strong>@if(!string.IsNullOrWhiteSpace(operatingMode) && !operatingMode.Equals("Control",StringComparison.OrdinalIgnoreCase) && !operatingMode.Equals("BcControl",StringComparison.OrdinalIgnoreCase)){<span class="mode-label">@operatingMode</span>}</td>
+                <td data-sort-value="@error.CodeNumber"><strong>@error.CodeNumber</strong>@if(!string.IsNullOrWhiteSpace(operatingMode)){<span class="mode-label">@operatingMode</span>}</td>
                 <td class="neighbor" data-sort-value="@error.PreviousPunch?.ControlTime">@if(error.PreviousPunch is null){<span>Saknas</span>}else{<strong class="mono">@error.PreviousPunch.ControlTime</strong><span>SIID @error.PreviousPunch.Siid</span>}</td>
                 <td class="neighbor" data-sort-value="@error.NextPunch?.ControlTime">@if(error.NextPunch is null){<span>Saknas</span>}else{<strong class="mono">@error.NextPunch.ControlTime</strong><span>SIID @error.NextPunch.Siid</span>}</td>
                 <td data-sort-value="@error.SourceFile @error.RowNumber">@error.SourceFile<br/><span class="mono">rad @error.RowNumber</span></td>

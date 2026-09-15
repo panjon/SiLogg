@@ -36,12 +36,16 @@ dotnet run --project .\SiLogg.Web --launch-profile https
 ### Importera CSV-filer i webbappen
 
 1. Starta webbappen.
-2. Öppna sidan **Hantera data**.
-3. Ange sökvägen till mappen med CSV-filer, eller använd den förifyllda mappen `..\controlpost-dump`.
+2. Öppna sidan **Hantera**.
+3. Ladda upp CSV-filerna, eller (endast i lokal utveckling) ange sökvägen till mappen med CSV-filer, t.ex. den förifyllda mappen `..\controlpost-dump`.
 4. Kör importen.
 5. Sök sedan efter SIID eller kontrollkod på startsidan.
 
-I Development-miljö lagras webbappens databas som `data\si-logg.db` i projektets rot. En import ersätter befintliga poster i databasen.
+Uppladdade filer sparas bara temporärt under importen och tas bort direkt efteråt — de lagras inte kvar på servern. Vill man kunna titta på datat i efterhand sparar man själv en lokal kopia av CSV-filerna innan uppladdning.
+
+Man kan ladda upp och importera CSV-filer en och en eller några i taget — varje import lägger till nya poster i databasen i stället för att ersätta allt. Laddas samma fil (samma filnamn) upp igen ersätts bara den filens egna rader, så omuppladdningar skapar inga dubbletter.
+
+I Development-miljö lagras webbappens databas som `data\si-logg.db` i projektets rot. När datat inte längre behövs (t.ex. efter en tävling) kan databasen tömmas helt med knappen **Töm databas** på Hantera-sidan.
 
 ## CLI-verktyget
 

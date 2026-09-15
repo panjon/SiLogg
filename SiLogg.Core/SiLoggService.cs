@@ -17,6 +17,60 @@ public sealed class SiLoggService(string databasePath)
 
     public string DatabasePath { get; } = Path.GetFullPath(databasePath);
 
+    public void ClearDatabase()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(DatabasePath)!);
+        using var connection = OpenConnection();
+        RecreateSchema(connection);
+    }
+
+    public void DeleteFile(string sourceFile)
+    {
+        using var connection = OpenConnection();
+        CreateSchema(connection);
+        using var command = connection.CreateCommand();
+        command.CommandText = "DELETE FROM punches WHERE source_file = $source_file;";
+        command.Parameters.AddWithValue("$source_file", sourceFile);
+        command.ExecuteNonQuery();
+    }
+
+    public IReadOnlyList<ImportedFileResult> ListImportedFiles()
+    {
+        if (!File.Exists(DatabasePath))
+        {
+            return [];
+        }
+
+        using var connection = OpenConnection();
+        CreateSchema(connection);
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT p.source_file, p.code_number, p.raw_json, counts.row_count
+            FROM punches p
+            JOIN (
+                SELECT source_file, COUNT(*) AS row_count, MIN(row_number) AS first_row
+                FROM punches
+                GROUP BY source_file
+            ) counts ON counts.source_file = p.source_file AND counts.first_row = p.row_number
+            ORDER BY p.source_file;
+            """;
+
+        var files = new List<ImportedFileResult>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var rawData = DeserializeRawData(reader.GetString(2));
+            files.Add(new ImportedFileResult(
+                reader.GetString(0),
+                reader.GetString(1),
+                GetRawValue(rawData, "Read on"),
+                GetRawValue(rawData, "Operating mode"),
+                reader.GetInt32(3)));
+        }
+
+        return files;
+    }
+
     public ImportResult ImportFolder(string folder)
     {
         var fullFolder = Path.GetFullPath(folder);
@@ -27,8 +81,14 @@ public sealed class SiLoggService(string databasePath)
 
         Directory.CreateDirectory(Path.GetDirectoryName(DatabasePath)!);
         using var connection = OpenConnection();
-        RecreateSchema(connection);
+        CreateSchema(connection);
         using var transaction = connection.BeginTransaction();
+
+        // Re-importing a file replaces just its own rows, so uploads can happen a few files at a time.
+        using var deleteCommand = connection.CreateCommand();
+        deleteCommand.Transaction = transaction;
+        deleteCommand.CommandText = "DELETE FROM punches WHERE source_file = $source_file;";
+        var deleteSourceFile = deleteCommand.Parameters.Add("$source_file", SqliteType.Text);
 
         using var insertCommand = connection.CreateCommand();
         insertCommand.Transaction = transaction;
@@ -46,6 +106,12 @@ public sealed class SiLoggService(string databasePath)
 
         var importedRows = 0;
         var files = Directory.EnumerateFiles(fullFolder, "*.csv", SearchOption.AllDirectories).ToList();
+        foreach (var relativePath in files.Select(filePath => Path.GetRelativePath(fullFolder, filePath)).Distinct())
+        {
+            deleteSourceFile.Value = relativePath;
+            deleteCommand.ExecuteNonQuery();
+        }
+
         foreach (var punch in ReadPunches(fullFolder, files))
         {
             sourceFile.Value = punch.SourceFile;
@@ -363,6 +429,7 @@ public sealed class SiLoggService(string databasePath)
 }
 
 public sealed record ImportResult(int ImportedRows, int FilesRead, string SourceFolder, string DatabasePath);
+public sealed record ImportedFileResult(string SourceFile, string CodeNumber, string ReadOn, string OperatingMode, int RowCount);
 public sealed record SearchResult(string Siid, IReadOnlyList<CompetitionResult> Competitions);
 public sealed record CompetitionResult(string Date, IReadOnlyList<PunchResult> Punches);
 public sealed record PunchResult(

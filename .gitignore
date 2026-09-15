@@ -1,0 +1,21 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+
+# SQLite runtime database (created by import, see README)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log

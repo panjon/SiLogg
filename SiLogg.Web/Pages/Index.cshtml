@@ -53,9 +53,7 @@
                         <tr>
                             <td data-sort-value="@punch.CodeNumber">
                                 <strong>@punch.CodeNumber</strong>
-                                @if (!string.IsNullOrWhiteSpace(operatingMode)
-                                    && !operatingMode.Equals("Control", StringComparison.OrdinalIgnoreCase)
-                                    && !operatingMode.Equals("BcControl", StringComparison.OrdinalIgnoreCase))
+                                @if (!string.IsNullOrWhiteSpace(operatingMode))
                                 {
                                     <span class="mode-label">@operatingMode</span>
                                 }
