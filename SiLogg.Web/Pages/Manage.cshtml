@@ -36,74 +36,75 @@
         </form>
 
         @if (Model.ShowFolderImport)
-            {
-                <form method="post" asp-page-handler="Import" class="inline-form management-form">
-                    <div class="field field-grow">
-                        <label asp-for="ImportFolder">Sökväg till katalog (endast lokal utveckling)</label>
-                        <input asp-for="ImportFolder" autocomplete="off" />
-                        <span asp-validation-for="ImportFolder" class="validation"></span>
-                    </div>
-                    <button class="button button-secondary" type="submit">Importera från mapp</button>
-                </form>
-            }
-        </section>
+        {
+            <form method="post" asp-page-handler="Import" class="inline-form management-form">
+                <div class="field field-grow">
+                    <label asp-for="ImportFolder">Sökväg till katalog (endast lokal utveckling)</label>
+                    <input asp-for="ImportFolder" autocomplete="off" />
+                    <span asp-validation-for="ImportFolder" class="validation"></span>
+                </div>
+                <button class="button button-secondary" type="submit">Importera från mapp</button>
+            </form>
+        }
+    </section>
 
-<section class="tool-band" aria-labelledby="clear-database-heading">
-    <div class="section-heading">
-        <div>
-            <h2 id="clear-database-heading">Töm hela databasen</h2>
-            <span>När tävlingen är slut och datat inte längre behövs kan all data raderas i ett steg.</span>
+    <section class="tool-band" aria-labelledby="clear-database-heading">
+        <div class="section-heading">
+            <div>
+                <h2 id="clear-database-heading">Töm hela databasen</h2>
+                <span>När tävlingen är slut och datat inte längre behövs kan all data raderas i ett steg.</span>
+            </div>
         </div>
+        <form method="post" asp-page-handler="Clear" class="inline-form"
+              onsubmit="return confirm('Töm databasen? Detta går inte att ångra.');">
+            <button class="button button-secondary" type="submit">Töm databas</button>
+        </form>
+    </section>
+
+    <div class="result-summary">
+        <h2>Importerade filer</h2>
+        <span>@Model.ImportedFiles.Count filer</span>
     </div>
-    <form method="post" asp-page-handler="Clear" class="inline-form"
-          onsubmit="return confirm('Töm databasen? Detta går inte att ångra.');">
-        <button class="button button-secondary" type="submit">Töm databas</button>
-    </form>
-</section>
 
-<div class="result-summary">
-    <h2>Importerade filer</h2>
-    <span>@Model.ImportedFiles.Count filer</span>
-</div>
-
-@if (Model.ImportedFiles.Count == 0)
-{
-    <div class="empty-state">Inga filer är importerade än. Ladda upp CSV-filer ovan.</div>
-}
-else
-{
-    <div class="table-wrap">
-        <table data-sortable>
-            <thead>
-                <tr>
-                    <th>Filnamn</th>
-                    <th>Läst (Read on)</th>
-                    <th>Kontrollkod</th>
-                    <th>Kontrolltyp (Operating mode)</th>
-                    <th>Antal rader</th>
-                    <th data-no-sort>Ta bort</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var file in Model.ImportedFiles)
-                {
+    @if (Model.ImportedFiles.Count == 0)
+    {
+        <div class="empty-state">Inga filer är importerade än. Ladda upp CSV-filer ovan.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table data-sortable>
+                <thead>
                     <tr>
-                        <td>@file.SourceFile</td>
-                        <td class="mono" data-sort-value="@file.ReadOn">@(string.IsNullOrWhiteSpace(file.ReadOn) ? "–" : file.ReadOn)</td>
-                        <td><strong>@file.CodeNumber</strong></td>
-                        <td>@(string.IsNullOrWhiteSpace(file.OperatingMode) ? "–" : file.OperatingMode)</td>
-                        <td data-sort-value="@file.RowCount">@file.RowCount</td>
-                        <td>
-                            <form method="post" asp-page-handler="DeleteFile" class="inline-form"
-                                  onsubmit="return confirm('Ta bort data för @file.SourceFile?');">
-                                <input type="hidden" name="sourceFile" value="@file.SourceFile" />
-                                <button class="button button-secondary" type="submit">Ta bort</button>
-                            </form>
-                        </td>
+                        <th>Filnamn</th>
+                        <th>Läst (Read on)</th>
+                        <th>Kontrollkod</th>
+                        <th>Kontrolltyp (Operating mode)</th>
+                        <th>Antal rader</th>
+                        <th data-no-sort>Ta bort</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+                </thead>
+                <tbody>
+                    @foreach (var file in Model.ImportedFiles)
+                    {
+                        <tr>
+                            <td>@file.SourceFile</td>
+                            <td class="mono" data-sort-value="@file.ReadOn">@(string.IsNullOrWhiteSpace(file.ReadOn) ? "–" :
+                                                    file.ReadOn)</td>
+                                <td><strong>@file.CodeNumber</strong></td>
+                                <td>@(string.IsNullOrWhiteSpace(file.OperatingMode) ? "–" : file.OperatingMode)</td>
+                                <td data-sort-value="@file.RowCount">@file.RowCount</td>
+                                <td>
+                                    <form method="post" asp-page-handler="DeleteFile" class="inline-form"
+                                          onsubmit="return confirm('Ta bort data för @file.SourceFile?');">
+                                        <input type="hidden" name="sourceFile" value="@file.SourceFile" />
+                                        <button class="button button-secondary" type="submit">Ta bort</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
 

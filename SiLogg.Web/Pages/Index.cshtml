@@ -6,20 +6,27 @@
 }
 
 <header class="page-heading">
-    <div><p class="eyebrow">Kontrollenhetens backupminne</p><h1>Sök stämplingar</h1></div>
+    <div>
+        <p class="eyebrow">Kontrollenhetens backupminne</p>
+        <h1>Sök stämplingar</h1>
+    </div>
     <a class="button button-secondary" asp-page="/Errors">Visa felrapport</a>
 </header>
 
 <section class="search-section" aria-labelledby="search-heading">
-    <div class="section-heading"><h2 id="search-heading">Sök</h2><span>Ange SIID, kontrollkod eller båda.</span></div>
+    <div class="section-heading">
+        <h2 id="search-heading">Sök</h2><span>Ange SIID, kontrollkod eller båda.</span>
+    </div>
     <form method="get" class="inline-form">
         <div class="field field-grow">
             <label for="siid">SIID-nummer</label>
-            <input id="siid" name="siid" value="@Model.Siid" inputmode="numeric" autocomplete="off" placeholder="Till exempel 2100616" />
+            <input id="siid" name="siid" value="@Model.Siid" inputmode="numeric" autocomplete="off"
+                   placeholder="Till exempel 2100616" />
         </div>
         <div class="field">
             <label for="codeNumber">Kontrollkod</label>
-            <input id="codeNumber" name="codeNumber" value="@Model.CodeNumber" inputmode="numeric" autocomplete="off" placeholder="Till exempel 78" />
+            <input id="codeNumber" name="codeNumber" value="@Model.CodeNumber" inputmode="numeric" autocomplete="off"
+                   placeholder="Till exempel 78" />
         </div>
         <button class="button button-primary" type="submit">Sök</button>
     </form>
@@ -31,8 +38,14 @@
         <div class="result-summary">
             <h2>
                 Sökresultat
-                @if (!string.IsNullOrWhiteSpace(Model.Siid)) { <text> för SIID @Model.Siid</text> }
-                @if (!string.IsNullOrWhiteSpace(Model.CodeNumber)) { <text>, kontroll @Model.CodeNumber</text> }
+                @if (!string.IsNullOrWhiteSpace(Model.Siid))
+                {
+                    <text> för SIID @Model.Siid</text>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.CodeNumber))
+                {
+                    <text>, kontroll @Model.CodeNumber</text>
+                }
             </h2>
             <span>@Model.Result.Competitions.Sum(c => c.Punches.Count) träffar</span>
         </div>
@@ -44,49 +57,99 @@
         {
             <div class="competition">
                 <h3>@competition.Date</h3>
-                <div class="table-wrap"><table data-sortable>
-                    <thead><tr><th>Kontroll</th>@if (!string.IsNullOrWhiteSpace(Model.CodeNumber)) { <th>SIID</th> }<th>Stämplingstid</th><th>Felkod</th><th>Källfil</th><th data-no-sort>Detaljer</th></tr></thead>
-                    <tbody>
-                    @foreach (var punch in competition.Punches)
-                    {
-                        var operatingMode = punch.RawData.GetValueOrDefault("Operating mode");
-                        <tr>
-                            <td data-sort-value="@punch.CodeNumber">
-                                <strong>@punch.CodeNumber</strong>
-                                @if (!string.IsNullOrWhiteSpace(operatingMode))
-                                {
-                                    <span class="mode-label">@operatingMode</span>
-                                }
-                            </td>
-                            @if (!string.IsNullOrWhiteSpace(Model.CodeNumber))
-                            {
-                                <td class="mono" data-sort-value="@punch.RawData.GetValueOrDefault("SIID")"><strong>@punch.RawData.GetValueOrDefault("SIID")</strong></td>
+                <div class="table-wrap">
+                    <table data-sortable>
+                        <thead>
+                            <tr>
+                                <th>Kontroll</th>@if (!string.IsNullOrWhiteSpace(Model.CodeNumber)) {
+                                <th>SIID</th>
                             }
-                            <td class="mono" data-sort-value="@punch.PunchDateTime">@(punch.PunchDateTime ?? "–")</td>
-                            <td data-sort-value="@punch.ErrorCode">@if (punch.ErrorCode is not null) { <span class="error-code">@punch.ErrorCode</span> } else { <span>–</span> }</td>
-                            <td>@punch.SourceFile</td>
-                            <td>
-                                @if (punch.TimeWarning is not null) { <div class="warning">@punch.TimeWarning</div> }
-                                <details><summary>Rådata</summary><dl class="raw-grid">
-                                    @if (punch.ErrorCode is not null)
+                            <th>
+                                Stämplingstid</th>
+                                <th>Felkod</th>
+                                <th>Källfil</th>
+                                <th data-no-sort>Detaljer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var punch in competition.Punches)
+                            {
+                                var operatingMode = punch.RawData.GetValueOrDefault("Operating mode");
+                                <tr>
+                                    <td data-sort-value="@punch.CodeNumber">
+                                        <strong>@punch.CodeNumber</strong>
+                                        @if (!string.IsNullOrWhiteSpace(operatingMode))
+                                        {
+                                            <span class="mode-label">@operatingMode</span>
+                                        }
+                                    </td>
+                                    @if (!string.IsNullOrWhiteSpace(Model.CodeNumber))
                                     {
-                                        <dt>Felkod</dt>
-                                        <dd><span class="error-code">@punch.ErrorCode</span></dd>
-                                        <dt>Felbeskrivning</dt>
-                                        <dd>@PunchErrorCodes.GetDescription(punch.ErrorCode)</dd>
-                                        <dt>Stämpling före</dt>
-                                        <dd>@if (punch.PreviousPunch is null) { <span>Saknas</span> } else { <span class="mono">@punch.PreviousPunch.ControlTime</span> <span>(SIID @punch.PreviousPunch.Siid)</span> }</dd>
-                                        <dt>Stämpling efter</dt>
-                                        <dd>@if (punch.NextPunch is null) { <span>Saknas</span> } else { <span class="mono">@punch.NextPunch.ControlTime</span> <span>(SIID @punch.NextPunch.Siid)</span> }</dd>
-                                    }
-                                    @foreach (var item in punch.RawData) { <dt>@item.Key</dt><dd>@(string.IsNullOrEmpty(item.Value) ? "–" : item.Value)</dd> }
-                                </dl></details>
+                                        <td class="mono" data-sort-value="@punch.RawData.GetValueOrDefault("SIID")">
+                                            <strong>@punch.RawData.GetValueOrDefault("SIID")</strong></td>
+                                        }
+                                        <td class="mono" data-sort-value="@punch.PunchDateTime">@(punch.PunchDateTime ?? "–")</td>
+                                        <td data-sort-value="@punch.ErrorCode">@if (punch.ErrorCode is not null) {
+                                            <span
+                                            class="error-code">@punch.ErrorCode</span>
+                                        } else
+                                        {
+
+                                            <span>–</span>
+                                        }
+                                    </td>
+                                    <td>@punch.SourceFile</td>
+                                    <td>
+                                        @if (punch.TimeWarning is not null)
+                                        {
+                                            <div class="warning">@punch.TimeWarning</div>
+                                        }
+                                        <details>
+                                            <summary>Rådata</summary>
+                                            <dl class="raw-grid">
+                                                @if (punch.ErrorCode is not null)
+                                                {
+                                                    <dt>Felkod</dt>
+                                                    <dd><span class="error-code">@punch.ErrorCode</span></dd>
+                                                    <dt>Felbeskrivning</dt>
+                                                    <dd>@PunchErrorCodes.GetDescription(punch.ErrorCode)</dd>
+                                                    <dt>Stämpling före</dt>
+                                                    <dd>@if (punch.PreviousPunch is null) {
+                                                        <span>Saknas</span>
+                                                    } else
+                                                    {
+
+                                                        <span
+                                                        class="mono">@punch.PreviousPunch.ControlTime</span> <span>(SIID
+                                                        @punch.PreviousPunch.Siid)</span>
+                                                    }
+                                                </dd>
+                                                <dt>Stämpling efter</dt>
+                                                <dd>@if (punch.NextPunch is null) {
+                                                    <span>Saknas</span>
+                                                } else
+                                                {
+
+                                                    <span
+                                                    class="mono">@punch.NextPunch.ControlTime</span> <span>(SIID
+                                                    @punch.NextPunch.Siid)</span>
+                                                }
+                                            </dd>
+                                        }
+                                        @foreach (var item in punch.RawData)
+                                        {
+                                            <dt>@item.Key</dt>
+                                            <dd>@(string.IsNullOrEmpty(item.Value) ? "–" : item.Value)</dd>
+                                        }
+                                    </dl>
+                                </details>
                             </td>
                         </tr>
                     }
-                    </tbody>
-                </table></div>
-            </div>
-        }
-    </section>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+</section>
 }
