@@ -1,0 +1,35 @@
+@page
+@model ManageModel
+@{
+    ViewData["Title"] = "Hantera";
+}
+
+<header class="page-heading">
+    <div>
+        <p class="eyebrow">Inställningar och datakällor</p>
+        <h1>Hantera</h1>
+    </div>
+</header>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <output class="notice success">@Model.StatusMessage</output>
+}
+
+<section class="tool-band" aria-labelledby="control-data-heading">
+    <div class="section-heading">
+        <div>
+            <h2 id="control-data-heading">Kontrolldata</h2>
+            <span>Importera CSV-filer från kontrollenheternas backupminne.</span>
+        </div>
+    </div>
+    <p class="management-note">En ny import läser alla CSV-filer i vald katalog och dess underkataloger. Den befintliga databasen ersätts.</p>
+    <form method="post" asp-page-handler="Import" class="inline-form management-form">
+        <div class="field field-grow">
+            <label asp-for="ImportFolder">Sökväg till katalog</label>
+            <input asp-for="ImportFolder" autocomplete="off" />
+            <span asp-validation-for="ImportFolder" class="validation"></span>
+        </div>
+        <button class="button button-primary" type="submit">Importera</button>
+    </form>
+</section>

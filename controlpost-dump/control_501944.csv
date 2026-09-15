@@ -1,0 +1,12 @@
+No;Read on;SIID;Control time;Battery voltage;Serial number;Code number;DayOfWeek;Punch DateTime;Operating mode;SIAC number;SIAC Count;SIAC radio mode;SIAC is battery low;SIAC is card full;SIAC beacon mode;SIAC is gate mode;
+1;2026-09-13 16:14:15;2100614;2026-08-23   08:50:46.589;;;54;Su;08:50:46.589;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+2;2026-09-13 16:14:15;2159837;2026-08-23   10:22:23.351;;;54;Su;10:22:23.351;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+3;2026-09-13 16:14:15;2165522;2026-08-23   10:24:15.218;;;54;Su;10:24:15.218;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+4;2026-09-13 16:14:15;2212921;2026-08-23   10:37:13.921;;;54;Su;10:37:13.921;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+5;2026-09-13 16:14:15;2132185;2026-08-23   10:42:10.183;;;54;Su;10:42:10.183;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+6;2026-09-13 16:14:15;1309220;2026-08-23   10:57:14.882;;;54;Su;10:57:14.882;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+7;2026-09-13 16:14:15;245682;2026-08-23   10:59:21.308;;;54;Su;10:59:21.308;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+8;2026-09-13 16:14:15;2164031;2026-08-23   11:26:53.664;;;54;Su;11:26:53.664;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+9;2026-09-13 16:14:15;2771579;2026-08-23   11:43:08.433;;;54;Su;11:43:08.433;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+10;2026-09-13 16:14:15;2132164;2026-08-23   11:50:46.425;;;54;Su;11:50:46.425;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+11;2026-09-13 16:14:15;2390710;2026-09-13   16:14:17.195;;;54;Su;16:14:17.195;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;

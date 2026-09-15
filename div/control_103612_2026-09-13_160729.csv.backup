@@ -1,0 +1,15 @@
+No;Read on;SIID;Control time;Battery voltage;Serial number;Code number;DayOfWeek;Punch DateTime;Operating mode;SIAC number;SIAC Count;SIAC radio mode;SIAC is battery low;SIAC is card full;SIAC beacon mode;SIAC is gate mode;
+1;2026-09-13 16:04:13;2100614;2026-08-23   08:36:16.328;;;63;Su;08:36:16.328;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+2;2026-09-13 16:04:13;2159837;2026-08-23   10:19:37.671;;;63;Su;10:19:37.671;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+3;2026-09-13 16:04:13;2165522;2026-08-23   10:19:59.511;;;63;Su;10:19:59.511;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+4;2026-09-13 16:04:13;2164031;2026-08-23   11:23:21.394;;;63;Su;11:23:21.394;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+5;2026-09-13 16:04:13;2771579;2026-08-23   11:39:59.949;;;63;Su;11:39:59.949;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+6;2026-09-13 16:04:13;2132164;2026-08-23   11:48:13.542;;;63;Su;11:48:13.542;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+7;2026-09-13 16:04:13;2390706;2026-09-10   18:23:32.488;;;63;Th;18:23:32.488;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+8;2026-09-13 16:04:13;2390709;2026-09-10   18:24:50.359;;;63;Th;18:24:50.359;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+9;2026-09-13 16:04:13;2390705;2026-09-10   18:28:02.652;;;63;Th;18:28:02.652;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+10;2026-09-13 16:04:13;2390708;2026-09-10   18:28:04.773;;;63;Th;18:28:04.773;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+11;2026-09-13 16:04:13;443383;2026-09-10   18:31:07.324;;;63;Th;18:31:07.324;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+12;2026-09-13 16:04:13;2390703;2026-09-10   18:31:14.433;;;63;Th;18:31:14.433;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+13;2026-09-13 16:04:13;2390704;2026-09-10   18:37:25.609;;;63;Th;18:37:25.609;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+14;2026-09-13 16:04:13;2390710;2026-09-13   16:04:13.140;;;63;Su;16:04:13.140;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;

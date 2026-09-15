@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SI-logg</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/SiLogg.Web.styles.css" />
+</head>
+<body>
+    <header>
+        <nav class="topbar" aria-label="Huvudnavigation">
+            <div class="shell nav-inner">
+                <a class="brand" asp-page="/Index"><span class="brand-mark">SI</span><span>Loggverktyg</span></a>
+                <div class="nav-links"><a asp-page="/Index">Sök</a><a asp-page="/Errors">Felrapport</a><a asp-page="/Manage">Hantera</a></div>
+            </div>
+        </nav>
+    </header>
+    <div class="shell">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+    <script src="~/js/site.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

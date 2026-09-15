@@ -1,0 +1,4 @@
+No;Read on;SIID;Control time;Battery voltage;Serial number;Code number;DayOfWeek;Punch DateTime;Operating mode;SIAC number;SIAC Count;SIAC radio mode;SIAC is battery low;SIAC is card full;SIAC beacon mode;SIAC is gate mode;
+1;2026-09-13 16:20:45;2100615;2026-08-21   20:36:39.289;;;44;Fr;20:36:39.289;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+2;2026-09-13 16:20:45;2077356;2026-08-23   08:18:41.359;;;44;Su;08:18:41.359;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
+3;2026-09-13 16:20:45;2390710;2026-09-13   16:20:35.222;;;44;Su;16:20:35.222;BcControl;0;1;NotSetOrDisabled;;False;Unknown;False;
