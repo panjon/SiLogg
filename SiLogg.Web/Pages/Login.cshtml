@@ -1,0 +1,40 @@
+@page
+@model SiLogg.Web.Pages.LoginModel
+@{
+    ViewData["Title"] = "Logga in";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SI-logg</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body>
+    <div class="shell" style="max-width: 420px; margin-top: 4rem;">
+        <h1>Logga in</h1>
+        <form method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <p style="color: red;">@Model.ErrorMessage</p>
+            }
+            <div class="mb-3">
+                <label asp-for="Username">Användarnamn</label>
+                <input asp-for="Username" class="form-control" autofocus />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password">Lösenord</label>
+                <input asp-for="Password" type="password" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Logga in</button>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -7,6 +7,7 @@
 .vscode/
 *.user
 *.suo
+publish/*
 
 # SQLite runtime database (created by import, see README)
 data/*.db

@@ -119,3 +119,23 @@ dotnet run --project .\SiLogg.Tool -- --list
 ```powershell
 dotnet build .\SiLogg.slnx
 ```
+
+## Publicera till Azure App Service
+
+Appen kan köras i Azure App Service. Ange app setting `SILOGG_DATABASE_PATH` till en skrivbar persistent sökväg, till exempel `D:\home\data\si-logg.db` för Windows App Service. Appen skapar katalogen automatiskt.
+
+Publicera lokalt:
+
+```powershell
+dotnet publish .\SiLogg.Web -c Release -o .\publish
+Compress-Archive -Path .\publish\* -DestinationPath .\silogg.zip -Force
+az webapp deployment source config-zip --resource-group rg-silogg --name <webbapp-namn> --src .\silogg.zip
+```
+
+Konfigurera databassökvägen:
+
+```powershell
+az webapp config appsettings set --resource-group rg-silogg --name <webbapp-namn> --settings SILOGG_DATABASE_PATH="D:\home\data\si-logg.db"
+```
+
+Aktivera därefter App Service Authentication med Microsoft Entra ID och begränsa åtkomsten till de användare eller den grupp som ska använda appen. Uppladdade CSV-filer sparas bara temporärt; spara en lokal arkivkopia före uppladdningen.
