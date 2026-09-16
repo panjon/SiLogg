@@ -1,5 +1,8 @@
 using SiLogg.Core;
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
 
@@ -11,6 +14,15 @@ CultureInfo.DefaultThreadCurrentUICulture = swedishCulture;
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.Configure<FormOptions>(options => options.MultipartBodyLengthLimit = 100 * 1024 * 1024);
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddAuthorization(options =>
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 var configuredDatabasePath = builder.Configuration["SILOGG_DATABASE_PATH"];
 var databasePath = !string.IsNullOrWhiteSpace(configuredDatabasePath)
     ? configuredDatabasePath
@@ -45,8 +57,15 @@ else
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+app.MapGet("/logout", async (HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Redirect("/Login");
+}).AllowAnonymous();
 
 app.Run();
