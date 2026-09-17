@@ -16,7 +16,7 @@ public sealed class ReadoutCoordinator : IDisposable
     public BindingList<LogEntry> Log { get; } = [];
 
     public event Action<string>? StatusChanged;
-    public event Action<string?>? CurrentStationChanged;
+    public event Action<string?, uint?>? CurrentStationChanged;
     public event Action<IReadOnlyList<string>>? AvailableDevicesChanged;
 
     public ReadoutCoordinator(ReaderOptions options)
@@ -49,9 +49,9 @@ public sealed class ReadoutCoordinator : IDisposable
         _service.RequestReadout();
     }
 
-    private void OnStationDetected(string stationSerial)
+    private void OnStationDetected(string stationSerial, uint codeNumber)
     {
-        CurrentStationChanged?.Invoke(stationSerial);
+        CurrentStationChanged?.Invoke(stationSerial, codeNumber);
         _lastDetectedStation = stationSerial;
 
         var dedupeWindow = TimeSpan.FromMinutes(_options.DedupeWindowMinutes);
@@ -74,7 +74,7 @@ public sealed class ReadoutCoordinator : IDisposable
         {
             Time = DateTime.Now,
             StationSerial = stationSerial,
-            CodeNumber = readout.Punches.Count > 0 ? readout.Punches[0].CodeNumber : null,
+            CodeNumber = readout.CodeNumber,
             PunchCount = readout.Punches.Count,
             Type = _pendingType == ReadoutType.Forced ? "Tvingad" : "Auto"
         };
@@ -100,7 +100,7 @@ public sealed class ReadoutCoordinator : IDisposable
         RefreshEntry(entry);
 
         StatusChanged?.Invoke($"Kontroll {stationSerial} klar. Väntar på nästa kontroll...");
-        CurrentStationChanged?.Invoke(null);
+        CurrentStationChanged?.Invoke(null, null);
     }
 
     private void RefreshEntry(LogEntry entry)

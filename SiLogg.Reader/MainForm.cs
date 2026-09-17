@@ -126,11 +126,11 @@ public sealed class MainForm : Form
 
     private void OnStatusChanged(string message) => RunOnUiThread(() => _statusLabel.Text = message);
 
-    private void OnCurrentStationChanged(string? stationSerial) => RunOnUiThread(() =>
+    private void OnCurrentStationChanged(string? stationSerial, uint? codeNumber) => RunOnUiThread(() =>
     {
         _currentStationLabel.Text = stationSerial is null
             ? "Aktuell kontroll: -"
-            : $"Aktuell kontroll: {stationSerial}";
+            : $"Aktuell kontroll: Code {codeNumber} (serienummer {stationSerial})";
         _forceReadButton.Enabled = stationSerial is not null;
     });
 

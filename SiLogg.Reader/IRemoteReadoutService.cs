@@ -6,7 +6,7 @@ namespace SiLogg.Reader;
 public interface IRemoteReadoutService : IDisposable
 {
     event Action<string>? StatusChanged;
-    event Action<string>? StationDetected;
+    event Action<string, uint>? StationDetected;
     event Action<int>? ReadProgressChanged;
     event Action<ReadoutDto>? ReadCompleted;
     event Action<string>? ReadFailed;

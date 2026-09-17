@@ -18,7 +18,7 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
     private TargetMode _targetMode = TargetMode.Remote;
 
     public event Action<string>? StatusChanged;
-    public event Action<string>? StationDetected;
+    public event Action<string, uint>? StationDetected;
     public event Action<int>? ReadProgressChanged;
     public event Action<ReadoutDto>? ReadCompleted;
     public event Action<string>? ReadFailed;
@@ -72,7 +72,7 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
                 _currentStation = MockStationSerials[stationIndex];
                 _currentCodeNumber = MockStationCodeNumbers[stationIndex];
                 StatusChanged?.Invoke($"[MOCK] Kontroll {_currentStation} upptäckt.");
-                StationDetected?.Invoke(_currentStation);
+                StationDetected?.Invoke(_currentStation, _currentCodeNumber);
                 break;
             default:
                 // Håll "kontrollen i räckhåll" tills en ny simulerad kontroll väljs slumpmässigt.

@@ -21,9 +21,12 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
     private string? _selectedDeviceName;
     private List<string> _lastKnownDeviceNames = [];
     private TargetDevice _targetMode = TargetDevice.Remote;
+    private const int MaxBackupRetries = 3;
+    private int _backupRetryCount;
+    private bool _backupReadInProgress;
 
     public event Action<string>? StatusChanged;
-    public event Action<string>? StationDetected;
+    public event Action<string, uint>? StationDetected;
     public event Action<int>? ReadProgressChanged;
     public event Action<ReadoutDto>? ReadCompleted;
     public event Action<string>? ReadFailed;
@@ -56,6 +59,8 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
             return;
         }
 
+        _backupRetryCount = 0;
+        _backupReadInProgress = true;
         StatusChanged?.Invoke("Läser ut backupminne...");
         _comm.GetBackupMemory();
     }
@@ -161,7 +166,7 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
     {
         comm.StationConfigRead += (_, e) =>
         {
-            StationDetected?.Invoke(e.Device.SerialNumber);
+            StationDetected?.Invoke(e.Device.SerialNumber, (uint)e.Device.CodeNumber);
         };
 
         comm.BackupReadProgressChanged += (_, e) =>
@@ -189,13 +194,31 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
 
             var stationSerial = e.PunchData.Length > 0 ? e.PunchData[0].StationSerial.ToString() : "okänd";
             var codeNumber = e.PunchData.Length > 0 ? e.PunchData[0].CodeNumber : 0;
+            _backupReadInProgress = false;
+            _backupRetryCount = 0;
             var dto = new ReadoutDto(stationSerial, codeNumber, e.ReadoutDateTime, Models.ReadoutType.Auto, punches);
             ReadCompleted?.Invoke(dto);
         };
 
         comm.CommunicationFailed += (_, _) =>
         {
-            ReadFailed?.Invoke("Kommunikationen med enheten misslyckades.");
+            if (!_backupReadInProgress)
+            {
+                // Fel under den lätta "är någon i räckhåll"-sondningen åtgärdas redan av nästa poll-tick.
+                return;
+            }
+
+            _backupRetryCount++;
+            if (_backupRetryCount <= MaxBackupRetries)
+            {
+                StatusChanged?.Invoke($"Kommunikationsfel, försöker igen ({_backupRetryCount}/{MaxBackupRetries})...");
+                comm.GetBackupMemory();
+                return;
+            }
+
+            _backupReadInProgress = false;
+            _backupRetryCount = 0;
+            ReadFailed?.Invoke($"Kommunikationen med enheten misslyckades efter {MaxBackupRetries} försök.");
         };
     }
 
