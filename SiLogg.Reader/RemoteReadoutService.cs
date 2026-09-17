@@ -20,6 +20,7 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
     private bool _licenseConfigured;
     private string? _selectedDeviceName;
     private List<string> _lastKnownDeviceNames = [];
+    private TargetDevice _targetMode = TargetDevice.Remote;
 
     public event Action<string>? StatusChanged;
     public event Action<string>? StationDetected;
@@ -40,6 +41,9 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
     public void Start()
     {
         ConfigureLicenseOnce();
+        _targetMode = Enum.TryParse<TargetDevice>(_options.DefaultTargetMode, ignoreCase: true, out var mode)
+            ? mode
+            : TargetDevice.Remote;
         StatusChanged?.Invoke("Väntar på USB-enhet...");
         _pollTimer.Start();
     }
@@ -66,6 +70,16 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
             _comm.Close();
         }
         _comm = null;
+    }
+
+    public void SetTargetMode(Models.TargetMode mode)
+    {
+        _targetMode = mode == Models.TargetMode.Direct ? TargetDevice.Direct : TargetDevice.Remote;
+        if (_comm is { IsOpen: true })
+        {
+            _comm.TargetDevice = _targetMode;
+        }
+        StatusChanged?.Invoke($"Läsläge satt till {(_targetMode == TargetDevice.Direct ? "Direct" : "Remote")}.");
     }
 
     private void ConfigureLicenseOnce()
@@ -129,7 +143,7 @@ public sealed class RemoteReadoutService : IRemoteReadoutService
             var comm = new SiComm
             {
                 DeviceConnection = device,
-                TargetDevice = TargetDevice.Remote,
+                TargetDevice = _targetMode,
                 BaudRate = SiComm.BAUDRATE_AUTO_DETECT,
             };
             SubscribeEvents(comm);

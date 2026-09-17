@@ -6,6 +6,13 @@ public enum ReadoutType
     Forced
 }
 
+/// <summary>Mirrors the SDK's TargetDevice enum without leaking the SDK type outside RemoteReadoutService.</summary>
+public enum TargetMode
+{
+    Remote,
+    Direct
+}
+
 public sealed record PunchRecordDto(
     int Id,
     uint CodeNumber,

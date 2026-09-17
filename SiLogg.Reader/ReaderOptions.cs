@@ -11,6 +11,9 @@ public sealed class ReaderOptions
     public int PollIntervalMs { get; set; } = 1000;
     public int DedupeWindowMinutes { get; set; } = 30;
 
+    /// <summary>Default read mode at startup: "Remote" (default) or "Direct". Can be toggled at runtime in the UI.</summary>
+    public string DefaultTargetMode { get; set; } = "Remote";
+
     /// <summary>When true, simulates a USB master + remote station instead of using the real SDK. For testing without hardware.</summary>
     public bool UseMockDevice { get; set; }
 }

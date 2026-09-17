@@ -15,6 +15,9 @@ public interface IRemoteReadoutService : IDisposable
     void Start();
     void RequestReadout();
 
+    /// <summary>Switches between reading the directly connected master station and a remote control station.</summary>
+    void SetTargetMode(TargetMode mode);
+
     /// <summary>Overrides which detected device to use. Pass null/empty to go back to auto-select (first found).</summary>
     void SelectDevice(string? deviceName);
 }

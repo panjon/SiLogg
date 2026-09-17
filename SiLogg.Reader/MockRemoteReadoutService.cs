@@ -15,6 +15,7 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
     private string? _currentStation;
     private uint _currentCodeNumber;
     private string? _selectedDeviceName;
+    private TargetMode _targetMode = TargetMode.Remote;
 
     public event Action<string>? StatusChanged;
     public event Action<string>? StationDetected;
@@ -37,6 +38,12 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
     }
 
     public void SelectDevice(string? deviceName) => _selectedDeviceName = string.IsNullOrWhiteSpace(deviceName) ? null : deviceName;
+
+    public void SetTargetMode(TargetMode mode)
+    {
+        _targetMode = mode;
+        StatusChanged?.Invoke($"[MOCK] Läsläge satt till {mode}.");
+    }
 
     public void RequestReadout()
     {

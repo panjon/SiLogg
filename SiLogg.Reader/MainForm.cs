@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using SiLogg.Reader.Models;
 
 namespace SiLogg.Reader;
 
@@ -8,6 +9,8 @@ public sealed class MainForm : Form
     private readonly Label _statusLabel;
     private readonly Label _currentStationLabel;
     private readonly ComboBox _deviceComboBox;
+    private readonly RadioButton _remoteModeRadio;
+    private readonly RadioButton _directModeRadio;
     private readonly Button _forceReadButton;
     private readonly DataGridView _logGrid;
     private bool _updatingDeviceList;
@@ -62,6 +65,31 @@ public sealed class MainForm : Form
         };
         _forceReadButton.Click += (_, _) => _coordinator.ForceReadout();
 
+        var targetModePanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 32,
+            FlowDirection = FlowDirection.LeftToRight,
+        };
+        _remoteModeRadio = new RadioButton { Text = "Remote (färransluten kontroll)", AutoSize = true, Checked = _coordinator.DefaultTargetMode == TargetMode.Remote };
+        _directModeRadio = new RadioButton { Text = "Direct (lokalt ansluten enhet)", AutoSize = true, Checked = _coordinator.DefaultTargetMode == TargetMode.Direct, Margin = new Padding(12, 3, 3, 3) };
+        _remoteModeRadio.CheckedChanged += (_, _) =>
+        {
+            if (_remoteModeRadio.Checked)
+            {
+                _coordinator.SetTargetMode(TargetMode.Remote);
+            }
+        };
+        _directModeRadio.CheckedChanged += (_, _) =>
+        {
+            if (_directModeRadio.Checked)
+            {
+                _coordinator.SetTargetMode(TargetMode.Direct);
+            }
+        };
+        targetModePanel.Controls.Add(_remoteModeRadio);
+        targetModePanel.Controls.Add(_directModeRadio);
+
         _logGrid = new DataGridView
         {
             Dock = DockStyle.Fill,
@@ -83,6 +111,7 @@ public sealed class MainForm : Form
         Controls.Add(_logGrid);
         Controls.Add(_forceReadButton);
         Controls.Add(_deviceComboBox);
+        Controls.Add(targetModePanel);
         Controls.Add(_currentStationLabel);
         Controls.Add(_statusLabel);
 

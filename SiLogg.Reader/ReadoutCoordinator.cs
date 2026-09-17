@@ -37,6 +37,12 @@ public sealed class ReadoutCoordinator : IDisposable
 
     public void SelectDevice(string? deviceName) => _service.SelectDevice(deviceName);
 
+    public void SetTargetMode(TargetMode mode) => _service.SetTargetMode(mode);
+
+    public TargetMode DefaultTargetMode => Enum.TryParse<TargetMode>(_options.DefaultTargetMode, ignoreCase: true, out var mode)
+        ? mode
+        : TargetMode.Remote;
+
     public void ForceReadout()
     {
         _pendingType = ReadoutType.Forced;
