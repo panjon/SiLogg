@@ -24,3 +24,4 @@ Thumbs.db
 # Local secrets / deployment artifacts (never commit)
 *.zip
 publishprofile.xml
+SiLogg.Reader/appsettings.Local.json
