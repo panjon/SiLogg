@@ -7,6 +7,17 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
+        using var singleInstanceMutex = new Mutex(true, "SiLogg.Reader.SingleInstance", out var isFirstInstance);
+        if (!isFirstInstance)
+        {
+            MessageBox.Show(
+                "SiLogg Reader körs redan. Stäng den befintliga instansen innan du startar en ny.",
+                "SiLogg Reader",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            return;
+        }
+
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false)

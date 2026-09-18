@@ -33,6 +33,26 @@ dotnet run --project .\SiLogg.Web --launch-profile https
 
 Öppna därefter [https://localhost:7299](https://localhost:7299). Det lokala utvecklingscertifikatet kan behöva godkännas i webbläsaren.
 
+## Starta SiLogg Reader
+
+Starta Windows-appen från projektets rot:
+
+```powershell
+dotnet run --project .\SiLogg.Reader
+```
+
+Readern öppnas som en Windows Forms-app och kan läsa ut data från en ansluten SPORTident-enhet.
+
+### Starta webb och Reader samtidigt
+
+Starta båda apparna från projektets rot med webben i HTTPS-läge:
+
+```powershell
+$env:SILOGG_READOUT_API_KEY = "local-test-key"; Start-Process dotnet -ArgumentList 'run --project .\SiLogg.Web --launch-profile https'; Start-Process dotnet -ArgumentList 'run --project .\SiLogg.Reader'
+```
+
+Nyckeln måste vara samma som `UploadApiKey` i `SiLogg.Reader/appsettings.Local.json`. Webben öppnas på [https://localhost:7299](https://localhost:7299) och Readern som en Windows-app.
+
 ### Importera CSV-filer i webbappen
 
 1. Starta webbappen.
