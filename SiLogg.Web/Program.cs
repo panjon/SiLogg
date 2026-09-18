@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
+using SiLogg.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 var swedishCulture = CultureInfo.GetCultureInfo("sv-SE");
@@ -61,6 +62,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapReadoutApi();
 
 app.MapGet("/logout", async (HttpContext context) =>
 {

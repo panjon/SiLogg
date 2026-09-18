@@ -139,7 +139,7 @@
                                         @foreach (var item in punch.RawData)
                                         {
                                             <dt>@item.Key</dt>
-                                            <dd>@(string.IsNullOrEmpty(item.Value) ? "–" : item.Value)</dd>
+                                            <dd>@(string.IsNullOrEmpty(item.Value) ? "–" : IndexModel.FormatRawValue(item.Key, item.Value))</dd>
                                         }
                                     </dl>
                                 </details>

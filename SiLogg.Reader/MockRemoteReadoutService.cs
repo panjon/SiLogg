@@ -45,6 +45,7 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
         StatusChanged?.Invoke($"[MOCK] Läsläge satt till {mode}.");
     }
 
+
     public void RequestReadout()
     {
         if (_currentStation is null)
@@ -97,11 +98,9 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
         var punches = Enumerable.Range(1, punchCount)
             .Select(i => new PunchRecordDto(
                 i,
-                codeNumber,
                 (100000 + _random.Next(999999)).ToString(),
                 startTime.AddMinutes(i * 3),
                 startTime.AddMinutes(i * 3).DayOfWeek.ToString(),
-                "Clear",
                 0,
                 1,
                 false,
@@ -110,7 +109,7 @@ public sealed class MockRemoteReadoutService : IRemoteReadoutService
                 false))
             .ToList();
 
-        var dto = new ReadoutDto(stationSerial, codeNumber, DateTime.Now, ReadoutType.Auto, punches);
+        var dto = new ReadoutDto(stationSerial, codeNumber, "Clear", DateTime.Now, ReadoutType.Auto, punches);
         ReadCompleted?.Invoke(dto);
         _timer.Start();
     }

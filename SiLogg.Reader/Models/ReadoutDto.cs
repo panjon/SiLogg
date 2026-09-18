@@ -15,11 +15,9 @@ public enum TargetMode
 
 public sealed record PunchRecordDto(
     int Id,
-    uint CodeNumber,
     string? Siid,
     DateTime PunchDateTime,
     string DayOfWeek,
-    string OperatingMode,
     int SiacRecordNo,
     int SiacRecordCount,
     bool SiacIsLowBattery,
@@ -30,6 +28,7 @@ public sealed record PunchRecordDto(
 public sealed record ReadoutDto(
     string StationSerial,
     uint CodeNumber,
+    string OperatingMode,
     DateTime ReadoutDateTime,
     ReadoutType ReadoutType,
     IReadOnlyList<PunchRecordDto> Punches);

@@ -47,6 +47,17 @@ Man kan ladda upp och importera CSV-filer en och en eller några i taget — var
 
 I Development-miljö lagras webbappens databas som `data\si-logg.db` i projektets rot. När datat inte längre behövs (t.ex. efter en tävling) kan databasen tömmas helt med knappen **Töm databas** på Hantera-sidan.
 
+### Ta emot readouts från SiLogg.Reader
+
+Webbappen har endpointen `POST /api/readouts`. Den kräver headern `X-Api-Key`.
+Konfigurera samma hemliga nyckel på servern och i Readern utan att lägga den i källkod eller versionshantering:
+
+```powershell
+$env:SILOGG_READOUT_API_KEY = "<hemlig-nyckel>"
+```
+
+Readern skickar nyckeln som `X-Api-Key`. Fel eller saknad nyckel ger `401 Unauthorized`. En godkänd readout importeras till samma SQLite-databas som CSV-importen.
+
 ## CLI-verktyget
 
 Kör CLI-kommandona från projektets rot:

@@ -8,6 +8,8 @@ public sealed class ReaderOptions
     public string UploadApiUrl { get; set; } = "";
     public string UploadApiKey { get; set; } = "";
     public string LocalOutputFolder { get; set; } = "";
+    public string DevicePort { get; set; } = "";
+    public bool EnableSound { get; set; } = true;
     public int PollIntervalMs { get; set; } = 1000;
     public int DedupeWindowMinutes { get; set; } = 30;
 

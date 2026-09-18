@@ -63,12 +63,21 @@ public sealed class SiLoggService(string databasePath)
             files.Add(new ImportedFileResult(
                 reader.GetString(0),
                 reader.GetString(1),
-                GetRawValue(rawData, "Read on"),
+                GetReadoutDate(rawData, reader.GetString(0)),
                 GetRawValue(rawData, "Operating mode"),
                 reader.GetInt32(3)));
         }
 
-        return files;
+        return files
+            .OrderByDescending(file => DateTimeOffset.TryParse(
+                file.ReadOn,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind,
+                out var readOn)
+                ? readOn
+                : DateTimeOffset.MinValue)
+            .ThenBy(file => file.SourceFile, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     public ImportResult ImportFolder(string folder)
@@ -131,6 +140,100 @@ public sealed class SiLoggService(string databasePath)
         return new ImportResult(importedRows, files.Count, fullFolder, DatabasePath);
     }
 
+    public ReadoutImportResult ImportReadout(ReadoutImport readout, string sourceFile)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(DatabasePath)!);
+        using var connection = OpenConnection();
+        CreateSchema(connection);
+        using var transaction = connection.BeginTransaction();
+
+        using var deleteCommand = connection.CreateCommand();
+        deleteCommand.Transaction = transaction;
+        deleteCommand.CommandText = "DELETE FROM punches WHERE source_file = $source_file;";
+        deleteCommand.Parameters.AddWithValue("$source_file", sourceFile);
+        deleteCommand.ExecuteNonQuery();
+
+        using var insertCommand = connection.CreateCommand();
+        insertCommand.Transaction = transaction;
+        insertCommand.CommandText = """
+            INSERT INTO punches (source_file, row_number, siid, code_number, punch_datetime, sort_key, raw_json)
+            VALUES ($source_file, $row_number, $siid, $code_number, $punch_datetime, $sort_key, $raw_json);
+            """;
+        var source = insertCommand.Parameters.Add("$source_file", SqliteType.Text);
+        var rowNumber = insertCommand.Parameters.Add("$row_number", SqliteType.Integer);
+        var siid = insertCommand.Parameters.Add("$siid", SqliteType.Text);
+        var codeNumber = insertCommand.Parameters.Add("$code_number", SqliteType.Text);
+        var punchDateTime = insertCommand.Parameters.Add("$punch_datetime", SqliteType.Text);
+        var sortKey = insertCommand.Parameters.Add("$sort_key", SqliteType.Text);
+        var rawJson = insertCommand.Parameters.Add("$raw_json", SqliteType.Text);
+
+        var importedRows = 0;
+        foreach (var punch in readout.Punches)
+        {
+            var punchTime = punch.PunchDateTime.ToString("O", CultureInfo.InvariantCulture);
+            var rawData = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["SIID"] = punch.Siid ?? string.Empty,
+                ["Code number"] = readout.CodeNumber.ToString(CultureInfo.InvariantCulture),
+                ["Punch DateTime"] = punchTime,
+                ["Control time"] = punchTime,
+                ["Station serial"] = readout.StationSerial,
+                ["Read on"] = readout.ReadoutDateTime.ToString("O", CultureInfo.InvariantCulture),
+                ["DayOfWeek"] = punch.DayOfWeek,
+                ["Operating mode"] = readout.OperatingMode,
+                ["SIAC number"] = punch.SiacRecordNo.ToString(CultureInfo.InvariantCulture),
+                ["SIAC Count"] = punch.SiacRecordCount.ToString(CultureInfo.InvariantCulture),
+                ["SIAC is battery low"] = punch.SiacIsLowBattery.ToString(),
+                ["SIAC is card full"] = punch.SiacIsCardFull.ToString(),
+                ["SIAC battery voltage"] = punch.SiacBatteryVoltage?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+                ["Is missing or empty"] = punch.IsMissingOrEmpty.ToString()
+            };
+            var parsedSortKey = punch.PunchDateTime.DateTime;
+
+            source.Value = sourceFile;
+            rowNumber.Value = punch.Id;
+            siid.Value = punch.Siid ?? string.Empty;
+            codeNumber.Value = readout.CodeNumber.ToString(CultureInfo.InvariantCulture);
+            punchDateTime.Value = punchTime;
+            sortKey.Value = parsedSortKey.ToString("O", CultureInfo.InvariantCulture);
+            rawJson.Value = JsonSerializer.Serialize(rawData, JsonOptions);
+            insertCommand.ExecuteNonQuery();
+            importedRows++;
+        }
+
+        transaction.Commit();
+        return new ReadoutImportResult(importedRows, sourceFile, DatabasePath);
+    }
+
+    private static string GetReadoutDate(Dictionary<string, string> rawData, string sourceFile)
+    {
+        var readoutDate = GetRawValue(rawData, "Read on");
+        if (!string.IsNullOrWhiteSpace(readoutDate))
+        {
+            return FormatReadoutDate(readoutDate);
+        }
+
+        var name = Path.GetFileNameWithoutExtension(sourceFile);
+        var parts = name.Split('_');
+        if (parts.Length >= 5
+            && DateTime.TryParseExact(
+                $"{parts[^2]}_{parts[^1]}",
+                "yyyyMMdd_HHmmss",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var parsed))
+        {
+            return parsed.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        }
+
+        return string.Empty;
+    }
+
+    private static string FormatReadoutDate(string value) =>
+        DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed)
+            ? parsed.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+            : value;
+
     public SearchResult Search(string? siid, string? codeNumber = null)
     {
         var normalizedSiid = siid?.Trim() ?? string.Empty;
@@ -167,7 +270,7 @@ public sealed class SiLoggService(string databasePath)
             errorLookup.TryGetValue((reader.GetString(2), reader.GetInt32(3)), out var error);
             punches.Add(new PunchResult(
                 reader.GetString(0),
-                reader.IsDBNull(1) ? null : reader.GetString(1),
+                reader.IsDBNull(1) ? null : FormatPunchTime(reader.GetString(1)),
                 reader.GetString(2),
                 analysis.EffectiveDateTime,
                 analysis.Warning,
@@ -414,6 +517,11 @@ public sealed class SiLoggService(string databasePath)
     private static string NormalizeDateTime(string value) =>
         string.Join(' ', value.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
+    private static string FormatPunchTime(string value) =>
+        TryParseDateTime(value, out var parsed)
+            ? parsed.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture)
+            : value;
+
     private static bool ContainsDate(string value) =>
         value.Length >= 10 && value[4] == '-' && value[7] == '-';
 
@@ -429,6 +537,24 @@ public sealed class SiLoggService(string databasePath)
 }
 
 public sealed record ImportResult(int ImportedRows, int FilesRead, string SourceFolder, string DatabasePath);
+public sealed record ReadoutImport(
+    string StationSerial,
+    uint CodeNumber,
+    string OperatingMode,
+    DateTimeOffset ReadoutDateTime,
+    IReadOnlyList<ReadoutPunch> Punches);
+public sealed record ReadoutPunch(
+    int Id,
+    string? Siid,
+    DateTimeOffset PunchDateTime,
+    string DayOfWeek,
+    int SiacRecordNo,
+    int SiacRecordCount,
+    bool SiacIsLowBattery,
+    bool SiacIsCardFull,
+    double? SiacBatteryVoltage,
+    bool IsMissingOrEmpty);
+public sealed record ReadoutImportResult(int ImportedRows, string SourceFile, string DatabasePath);
 public sealed record ImportedFileResult(string SourceFile, string CodeNumber, string ReadOn, string OperatingMode, int RowCount);
 public sealed record SearchResult(string Siid, IReadOnlyList<CompetitionResult> Competitions);
 public sealed record CompetitionResult(string Date, IReadOnlyList<PunchResult> Punches);

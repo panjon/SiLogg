@@ -15,7 +15,7 @@ public sealed class JsonReadoutWriter(string outputFolder)
     public string Write(ReadoutDto readout)
     {
         Directory.CreateDirectory(outputFolder);
-        var fileName = $"{readout.CodeNumber}_readout_{readout.StationSerial}_{readout.ReadoutDateTime:yyyyMMdd_HHmmss}.json";
+        var fileName = $"readout_{readout.CodeNumber}_{readout.StationSerial}_{readout.ReadoutDateTime:yyyyMMdd_HHmmss}.json";
         var path = Path.Combine(outputFolder, fileName);
         File.WriteAllText(path, JsonSerializer.Serialize(readout, JsonOptions));
         return path;
